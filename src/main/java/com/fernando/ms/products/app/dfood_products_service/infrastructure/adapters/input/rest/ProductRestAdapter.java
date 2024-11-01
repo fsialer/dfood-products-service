@@ -48,4 +48,10 @@ public class ProductRestAdapter {
     public void delete(@PathVariable Long id){
         productInputPort.delete(id);
     }
+
+    @GetMapping("find-by-ids")
+    public ResponseEntity<List<ProductResponse>> findByIds(@RequestParam List<Long> ids){
+        return ResponseEntity.ok(productRestMapper.toProductsResponse(productInputPort.findByIds(ids)));
+    }
+
 }

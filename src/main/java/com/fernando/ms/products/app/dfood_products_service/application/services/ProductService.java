@@ -49,4 +49,9 @@ public class ProductService implements ProductInputPort {
         }
         persistencePort.delete(id);
     }
+
+    @Override
+    public List<Product> findByIds(Iterable<Long> ids) {
+        return persistencePort.findByIds(ids);
+    }
 }

@@ -18,6 +18,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -138,6 +139,26 @@ public class ProductServiceTest {
         assertThrows(ProductNotFoundException.class,()->productService.delete(1L));
         Mockito.verify(productPersistencePort,times(1)).findById(1L);
         Mockito.verify(productPersistencePort,times(0)).delete(1L);
+    }
+
+    @Test
+    void shouldFindProductsByIdsWhenIdsExists(){
+        List<Long> ids = Collections.singletonList(1L);
+           when(productPersistencePort.findByIds(anyCollection()))
+                   .thenReturn(Collections.singletonList(TestUtils.buildProductMock()));
+        List<Product> products=productService.findByIds(ids);
+        assertEquals(1,products.size());
+        Mockito.verify(productPersistencePort,times(1)).findByIds(anyCollection());
+    }
+
+    @Test
+    void shouldFindProductsByIdsWhenIdsNotExists(){
+        List<Long> ids = Collections.singletonList(2L);
+        when(productPersistencePort.findByIds(anyCollection()))
+                .thenReturn(Collections.singletonList(TestUtils.buildProductMock()));
+        List<Product> products=productService.findByIds(ids);
+        assertEquals(0,products.size());
+        Mockito.verify(productPersistencePort,times(1)).findByIds(anyCollection());
     }
 
 }

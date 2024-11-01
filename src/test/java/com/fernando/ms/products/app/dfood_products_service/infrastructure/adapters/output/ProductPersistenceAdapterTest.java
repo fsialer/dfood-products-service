@@ -21,6 +21,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -105,5 +106,31 @@ public class ProductPersistenceAdapterTest {
         doNothing().when(repository).deleteById(anyLong());
         persistenceAdapter.delete(1L);
         Mockito.verify(repository,times(1)).deleteById(1L);
+    }
+
+    @Test
+    void shouldConsultProductsWhenIdsExisting(){
+        List<Long> ids = Collections.singletonList(1L);
+        when(repository.findAllById(anyCollection()))
+                .thenReturn(Collections.singletonList(TestUtils.buildProductEntityMock()));
+        when(mapper.toProducts(anyList()))
+                .thenReturn(Collections.singletonList(TestUtils.buildProductMock()));
+        List<Product> products=persistenceAdapter.findByIds(ids);
+        assertEquals(1,products.size());
+        Mockito.verify(mapper,times(1)).toProducts(anyList());
+        Mockito.verify(repository,times(1)).findAllById(anyCollection());
+    }
+
+    @Test
+    void shouldConsultProductsWhenIdsNotExisting(){
+        List<Long> ids = Collections.singletonList(2L);
+        when(repository.findAllById(anyCollection()))
+                .thenReturn(Collections.singletonList(TestUtils.buildProductEntityMock()));
+        when(mapper.toProducts(anyList()))
+                .thenReturn(Collections.singletonList(TestUtils.buildProductMock()));
+        List<Product> products=persistenceAdapter.findByIds(ids);
+        assertEquals(0,products.size());
+        Mockito.verify(mapper,times(1)).toProducts(anyList());
+        Mockito.verify(repository,times(1)).findAllById(anyCollection());
     }
 }

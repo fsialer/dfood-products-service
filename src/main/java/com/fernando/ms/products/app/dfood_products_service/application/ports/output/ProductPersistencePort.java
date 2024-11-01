@@ -11,4 +11,5 @@ public interface ProductPersistencePort {
     Optional<Product> findById(Long id);
     Product save(Product product);
     void delete(Long id);
+    List<Product> findByIds(Iterable<Long> ids);
 }

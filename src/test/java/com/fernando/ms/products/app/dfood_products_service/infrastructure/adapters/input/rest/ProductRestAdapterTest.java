@@ -10,6 +10,7 @@ import com.fernando.ms.products.app.dfood_products_service.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -25,6 +26,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Collections;
+import java.util.List;
 
 @WebMvcTest(ProductRestAdapter.class)
 public class ProductRestAdapterTest {
@@ -154,5 +156,43 @@ public class ProductRestAdapterTest {
         Mockito.verify(productInputPort,times(1)).delete(anyLong());
     }
 
+    @Test
+    void ShouldReturnProductsWhenIdsExistingWithCodeResponse200() throws Exception {
+
+        Product product=TestUtils.buildProductMock();
+        ProductResponse productResponse=TestUtils.buildProductResponseMock();
+        when(productInputPort.findByIds(anyCollection()))
+                .thenReturn(Collections.singletonList(product));
+        when(productRestMapper.toProductsResponse(anyList()))
+                .thenReturn(Collections.singletonList(productResponse));
+
+        mockMvc.perform(get("/products/find-by-ids")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("ids","1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isNotEmpty())
+                .andExpect(jsonPath("$.length()").value(1));
+
+        Mockito.verify(productInputPort,times(1)).findByIds(anyCollection());
+        Mockito.verify(productRestMapper,times(1)).toProductsResponse(Collections.singletonList(product));
+    }
+
+    @Test
+    void ShouldReturnProductsWhenIdsNotExistingWithCodeResponse200() throws Exception {
+        when(productInputPort.findByIds(anyCollection()))
+                .thenReturn(Collections.emptyList());
+        when(productRestMapper.toProductsResponse(anyList()))
+                .thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/products/find-by-ids")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("ids","2"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isEmpty())
+                .andExpect(jsonPath("$.length()").value(0));
+
+        Mockito.verify(productInputPort,times(1)).findByIds(anyCollection());
+        Mockito.verify(productRestMapper,times(1)).toProductsResponse(anyList());
+    }
 
 }

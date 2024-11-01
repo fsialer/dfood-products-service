@@ -35,4 +35,9 @@ public class ProductPersistenceAdapter implements ProductPersistencePort {
     public void delete(Long id) {
         repository.deleteById(id);
     }
+
+    @Override
+    public List<Product> findByIds(Iterable<Long> ids) {
+        return mapper.toProducts(repository.findAllById(ids));
+    }
 }

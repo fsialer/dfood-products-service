@@ -10,4 +10,5 @@ public interface ProductInputPort {
     Product save(Product product);
     Product update(Long id,Product product);
     void delete(Long id);
+    List<Product> findByIds(Iterable<Long> ids);
 }
