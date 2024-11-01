@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static com.fernando.ms.products.app.dfood_products_service.infrastructure.adapters.input.rest.models.enums.ErrorType.FUNCTIONAL;
 import static com.fernando.ms.products.app.dfood_products_service.infrastructure.adapters.input.rest.models.enums.ErrorType.SYSTEM;
+import static com.fernando.ms.products.app.dfood_products_service.infrastructure.utils.ErrorCatalog.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;

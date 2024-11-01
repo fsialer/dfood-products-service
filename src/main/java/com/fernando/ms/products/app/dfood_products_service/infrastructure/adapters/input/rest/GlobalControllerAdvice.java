@@ -7,6 +7,10 @@ import com.fernando.ms.products.app.dfood_products_service.infrastructure.adapte
 
 import static com.fernando.ms.products.app.dfood_products_service.infrastructure.adapters.input.rest.models.enums.ErrorType.SYSTEM;
 import static com.fernando.ms.products.app.dfood_products_service.infrastructure.adapters.input.rest.models.enums.ErrorType.FUNCTIONAL;
+import static com.fernando.ms.products.app.dfood_products_service.infrastructure.utils.ErrorCatalog.PRODUCT_NOT_FOUND;
+import static com.fernando.ms.products.app.dfood_products_service.infrastructure.utils.ErrorCatalog.CATEGORY_NOT_FOUND;
+import static com.fernando.ms.products.app.dfood_products_service.infrastructure.utils.ErrorCatalog.PRODUCTS_BAD_PARAMETERS;
+import static com.fernando.ms.products.app.dfood_products_service.infrastructure.utils.ErrorCatalog.INTERNAL_SERVER_ERROR;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -23,7 +27,7 @@ import java.util.Collections;
 @Slf4j
 @RestControllerAdvice
 public class GlobalControllerAdvice {
-    
+
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(ProductNotFoundException.class)
     public ErrorResponse handleProductNotFoundException() {
@@ -71,5 +75,4 @@ public class GlobalControllerAdvice {
                 .timestamp(LocalDate.now().toString())
                 .build();
     }
-
 }
