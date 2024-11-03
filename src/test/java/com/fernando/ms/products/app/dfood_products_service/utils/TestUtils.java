@@ -2,6 +2,7 @@ package com.fernando.ms.products.app.dfood_products_service.utils;
 
 import com.fernando.ms.products.app.dfood_products_service.domain.model.Category;
 import com.fernando.ms.products.app.dfood_products_service.domain.model.Product;
+import com.fernando.ms.products.app.dfood_products_service.infrastructure.adapters.input.rest.models.request.CreateCategoryIdRequest;
 import com.fernando.ms.products.app.dfood_products_service.infrastructure.adapters.input.rest.models.request.CreateCategoryRequest;
 import com.fernando.ms.products.app.dfood_products_service.infrastructure.adapters.input.rest.models.request.CreateProductRequest;
 import com.fernando.ms.products.app.dfood_products_service.infrastructure.adapters.input.rest.models.response.CategoryResponse;
@@ -24,6 +25,22 @@ public class TestUtils {
                 .category(Category
                         .builder()
                         .id(1L)
+                        .name("comida")
+                        .build())
+                .build();
+    }
+
+    public static Product buildProductUpdatedMock(){
+        return Product.builder()
+                .id(1L)
+                .name("Arroz con mariscos")
+                .description("Arroz con los mariscos frescos del dia")
+                .price(15.0)
+                .quantity(14)
+                .available(true)
+                .category(Category
+                        .builder()
+                        .id(2L)
                         .name("comida")
                         .build())
                 .build();
@@ -69,9 +86,9 @@ public class TestUtils {
                 .price(15.0)
                 .quantity(14)
                 .available(true)
-                .category(CreateCategoryRequest
+                .category(CreateCategoryIdRequest
                         .builder()
-                        .name("comida")
+                        .id(1L)
                         .build())
                 .build();
     }
@@ -79,6 +96,13 @@ public class TestUtils {
     public static Category buildCategoryMock(){
         return Category.builder()
                 .id(1L)
+                .name("Comida")
+                .build();
+    }
+
+    public static Category buildCategoryUpdateMock(){
+        return Category.builder()
+                .id(2L)
                 .name("Comida")
                 .build();
     }

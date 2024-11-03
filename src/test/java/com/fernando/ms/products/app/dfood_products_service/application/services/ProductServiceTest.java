@@ -1,8 +1,11 @@
 package com.fernando.ms.products.app.dfood_products_service.application.services;
 
 
+import com.fernando.ms.products.app.dfood_products_service.application.ports.output.CategoryPersistencePort;
 import com.fernando.ms.products.app.dfood_products_service.application.ports.output.ProductPersistencePort;
+import com.fernando.ms.products.app.dfood_products_service.domain.exceptions.CategoryNotFoundException;
 import com.fernando.ms.products.app.dfood_products_service.domain.exceptions.ProductNotFoundException;
+import com.fernando.ms.products.app.dfood_products_service.domain.model.Category;
 import com.fernando.ms.products.app.dfood_products_service.domain.model.Product;
 import com.fernando.ms.products.app.dfood_products_service.utils.TestUtils;
 import org.junit.jupiter.api.Test;
@@ -18,7 +21,6 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +29,9 @@ public class ProductServiceTest {
 
     @Mock
     private ProductPersistencePort productPersistencePort;
+
+    @Mock
+    private CategoryPersistencePort categoryPersistencePort;
 
     @InjectMocks
     private ProductService productService;
@@ -69,40 +74,77 @@ public class ProductServiceTest {
     }
 
     @Test
-    void shouldReturnProductWhenSaveAnProductNew(){
-        Product productNew=Product.builder()
-                .id(1L)
-                .name("Arroz con marisco")
-                .description("Arroz con marisco frescos")
-                .build();
+    void shouldReturnCategoryNotWhenSaveAnProductNew(){
+        Product productNew=TestUtils.buildProductMock();
+        Category category=TestUtils.buildCategoryMock();
+        when(categoryPersistencePort.findById(anyLong()))
+                .thenReturn(Optional.empty());
+        assertThrows(CategoryNotFoundException.class,()->productService.save(productNew));
+        Mockito.verify(categoryPersistencePort,times(1)).findById(anyLong());
+        Mockito.verify(productPersistencePort,times(0)).save(any(Product.class));
+    }
 
+    @Test
+    void shouldReturnProductWhenSaveAnProductNew(){
+        Product productNew=TestUtils.buildProductMock();
+        Category category=TestUtils.buildCategoryMock();
+        when(categoryPersistencePort.findById(anyLong()))
+                .thenReturn(Optional.of(category));
         when(productPersistencePort.save(any(Product.class)))
                 .thenReturn(productNew);
-
         Product product=productService.save(productNew);
         assertNotNull(product);
-        Mockito.verify(productPersistencePort,times(1)).save(productNew);
+        Mockito.verify(productPersistencePort,times(1)).save(any(Product.class));
+        Mockito.verify(categoryPersistencePort,times(1)).findById(anyLong());
     }
 
     @Test
     void shouldReturnProductWhenUpdateAnProductById(){
-        Product productNew=Product.builder()
-                .id(1L)
-                .name("Arroz con pato")
-                .description("Arroz con pato recien cocinado")
-                .build();
+        Product productNew=TestUtils.buildProductMock();
         when(productPersistencePort.findById(anyLong()))
                 .thenReturn(Optional.of(productNew));
         when(productPersistencePort.save(any(Product.class)))
                 .thenReturn(productNew);
-
         Product productUpated=productService.update(1L,productNew);
-
         assertEquals(productUpated.getName(),productNew.getName());
         assertEquals(productUpated.getDescription(),productNew.getDescription());
-
-        Mockito.verify(productPersistencePort,times(1)).findById(1L);
+        Mockito.verify(categoryPersistencePort,times(0)).findById(anyLong());
+        Mockito.verify(productPersistencePort,times(1)).findById(anyLong());
         Mockito.verify(productPersistencePort,times(1)).save(productNew);
+    }
+
+    @Test
+    void shouldReturnProductWhenUpdateAnProductAndCategoryById(){
+        Product productNew=TestUtils.buildProductMock();
+        Product productUpdated=TestUtils.buildProductUpdatedMock();
+        Category category=TestUtils.buildCategoryUpdateMock();
+        when(categoryPersistencePort.findById(anyLong()))
+                .thenReturn(Optional.of(category));
+        when(productPersistencePort.findById(anyLong()))
+                .thenReturn(Optional.of(productNew));
+        when(productPersistencePort.save(any(Product.class)))
+                .thenReturn(productNew);
+        Product productUpdate=productService.update(1L,productUpdated);
+        assertNotNull(productUpdate);
+        assertEquals(productUpdated.getId(),productUpdate.getId());
+        Mockito.verify(categoryPersistencePort,times(1)).findById(anyLong());
+        Mockito.verify(productPersistencePort,times(1)).findById(anyLong());
+        Mockito.verify(productPersistencePort,times(1)).save(productNew);
+    }
+
+    @Test
+    void shouldReturnCategoryNotFoundWhenUpdateAnProductAndCategoryNoExistingById(){
+        Product productNew=TestUtils.buildProductMock();
+        Product productUpdated=TestUtils.buildProductUpdatedMock();
+        when(productPersistencePort.findById(anyLong()))
+                .thenReturn(Optional.of(productNew));
+        when(categoryPersistencePort.findById(anyLong()))
+                .thenReturn(Optional.empty());
+
+        assertThrows(CategoryNotFoundException.class,()->productService.update(1L,productUpdated));
+        Mockito.verify(categoryPersistencePort,times(1)).findById(anyLong());
+        Mockito.verify(productPersistencePort,times(1)).findById(anyLong());
+        Mockito.verify(productPersistencePort,times(0)).save(productNew);
     }
 
     @Test
@@ -155,7 +197,7 @@ public class ProductServiceTest {
     void shouldFindProductsByIdsWhenIdsNotExists(){
         List<Long> ids = Collections.singletonList(2L);
         when(productPersistencePort.findByIds(anyCollection()))
-                .thenReturn(Collections.singletonList(TestUtils.buildProductMock()));
+                .thenReturn(Collections.emptyList());
         List<Product> products=productService.findByIds(ids);
         assertEquals(0,products.size());
         Mockito.verify(productPersistencePort,times(1)).findByIds(anyCollection());

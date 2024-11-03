@@ -125,9 +125,9 @@ public class ProductPersistenceAdapterTest {
     void shouldConsultProductsWhenIdsNotExisting(){
         List<Long> ids = Collections.singletonList(2L);
         when(repository.findAllById(anyCollection()))
-                .thenReturn(Collections.singletonList(TestUtils.buildProductEntityMock()));
+                .thenReturn(Collections.emptyList());
         when(mapper.toProducts(anyList()))
-                .thenReturn(Collections.singletonList(TestUtils.buildProductMock()));
+                .thenReturn(Collections.emptyList());
         List<Product> products=persistenceAdapter.findByIds(ids);
         assertEquals(0,products.size());
         Mockito.verify(mapper,times(1)).toProducts(anyList());

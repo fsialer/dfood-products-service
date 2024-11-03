@@ -5,12 +5,10 @@ import com.fernando.ms.products.app.dfood_products_service.application.ports.inp
 import com.fernando.ms.products.app.dfood_products_service.domain.model.Category;
 import com.fernando.ms.products.app.dfood_products_service.infrastructure.adapters.input.rest.mapper.CategoryRestMapper;
 import com.fernando.ms.products.app.dfood_products_service.infrastructure.adapters.input.rest.models.request.CreateCategoryRequest;
-import com.fernando.ms.products.app.dfood_products_service.infrastructure.adapters.input.rest.models.request.CreateProductRequest;
 import com.fernando.ms.products.app.dfood_products_service.infrastructure.adapters.input.rest.models.response.CategoryResponse;
 import com.fernando.ms.products.app.dfood_products_service.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -136,7 +134,7 @@ public class CategoryRestAdapterTest {
         when(categoryRestMapper.toCategory(any(CreateCategoryRequest.class)))
                 .thenReturn(category);
         String productsJson = objectMapper.writeValueAsString(rq);
-        ArgumentCaptor<CreateProductRequest> captor = ArgumentCaptor.forClass(CreateProductRequest.class);
+
         mockMvc.perform(put("/categories/{id}",1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(productsJson))

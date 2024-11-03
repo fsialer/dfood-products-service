@@ -2,10 +2,7 @@ package com.fernando.ms.products.app.dfood_products_service.infrastructure.adapt
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 
@@ -14,6 +11,7 @@ import java.time.LocalDate;
 @Setter
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "products")
 public class ProductEntity {
     @Id

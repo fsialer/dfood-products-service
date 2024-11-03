@@ -20,5 +20,5 @@ public class CreateProductRequest {
     private Integer quantity;
     @NotNull(message = "Field available cannot be null or blank")
     private Boolean available;
-    private CreateCategoryRequest category;
+    private CreateCategoryIdRequest category;
 }

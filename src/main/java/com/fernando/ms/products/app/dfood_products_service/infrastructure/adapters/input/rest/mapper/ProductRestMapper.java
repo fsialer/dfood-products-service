@@ -4,6 +4,7 @@ import com.fernando.ms.products.app.dfood_products_service.domain.model.Product;
 import com.fernando.ms.products.app.dfood_products_service.infrastructure.adapters.input.rest.models.request.CreateProductRequest;
 import com.fernando.ms.products.app.dfood_products_service.infrastructure.adapters.input.rest.models.response.ProductResponse;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import java.util.List;
 
