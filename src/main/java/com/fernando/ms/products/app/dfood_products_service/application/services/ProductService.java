@@ -10,8 +10,7 @@ import com.fernando.ms.products.app.dfood_products_service.domain.model.Product;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -68,5 +67,12 @@ public class ProductService implements ProductInputPort {
     @Override
     public List<Product> findByIds(Iterable<Long> ids) {
         return persistencePort.findByIds(ids);
+    }
+
+    @Override
+    public void verifyExistsProductByIds(Iterable<Long> ids) {
+        if(!new HashSet<>(persistencePort.findByIds(ids).stream().map(Product::getId).toList()).containsAll((Collection<?>) ids)) {
+            throw new ProductNotFoundException();
+        }
     }
 }

@@ -17,9 +17,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ProductPersistenceAdapter implements ProductPersistencePort {
     private final ProductJpaRepository repository;
-    private final CategoryJpaRepository categoryRepository;
     private final ProductPersistenceMapper mapper;
-    private final CategoryPersistenceMapper categoryMapper;
 
     @Override
     public List<Product> findAll() {

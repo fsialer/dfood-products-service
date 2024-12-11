@@ -11,4 +11,5 @@ public interface ProductInputPort {
     Product update(Long id,Product product);
     void delete(Long id);
     List<Product> findByIds(Iterable<Long> ids);
+    void verifyExistsProductByIds(Iterable<Long> ids);
 }

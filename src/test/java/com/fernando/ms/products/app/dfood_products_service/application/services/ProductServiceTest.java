@@ -8,6 +8,7 @@ import com.fernando.ms.products.app.dfood_products_service.domain.exceptions.Pro
 import com.fernando.ms.products.app.dfood_products_service.domain.model.Category;
 import com.fernando.ms.products.app.dfood_products_service.domain.model.Product;
 import com.fernando.ms.products.app.dfood_products_service.utils.TestUtils;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -184,7 +185,8 @@ public class ProductServiceTest {
     }
 
     @Test
-    void shouldFindProductsByIdsWhenIdsExists(){
+    @DisplayName("When Products Identifiers Are Correct Expect A List Products")
+    void When_ProductsIdentifiersAreCorrects_Expect_AListProducts(){
         List<Long> ids = Collections.singletonList(1L);
            when(productPersistencePort.findByIds(anyCollection()))
                    .thenReturn(Collections.singletonList(TestUtils.buildProductMock()));
@@ -194,13 +196,33 @@ public class ProductServiceTest {
     }
 
     @Test
-    void shouldFindProductsByIdsWhenIdsNotExists(){
+    @DisplayName("When Products Identifiers Are InCorrects Expect A List Void")
+    void When_ProductsIdentifiersAreInCorrect_Expect_AListVoid() {
         List<Long> ids = Collections.singletonList(2L);
         when(productPersistencePort.findByIds(anyCollection()))
                 .thenReturn(Collections.emptyList());
-        List<Product> products=productService.findByIds(ids);
-        assertEquals(0,products.size());
-        Mockito.verify(productPersistencePort,times(1)).findByIds(anyCollection());
+        List<Product> products = productService.findByIds(ids);
+        assertEquals(0, products.size());
+        Mockito.verify(productPersistencePort, times(1)).findByIds(anyCollection());
     }
 
+    @Test
+    @DisplayName("When Products Identifiers Are Corrects Expect A Return True")
+    void When_ProductsIdentifiersAreCorrect_Expect_AReturnTrue() {
+        List<Long> ids = Collections.singletonList(1L);
+        when(productPersistencePort.findByIds(anyCollection()))
+                .thenReturn(Collections.singletonList(TestUtils.buildProductMock()));
+        productService.verifyExistsProductByIds(ids);
+        Mockito.verify(productPersistencePort, times(1)).findByIds(anyCollection());
+    }
+
+    @Test
+    @DisplayName("When Products Identifiers Are InCorrects Expect A Return True")
+    void Expect_ProductNotFoundException_WhenProductsIdentifiersAreIncorrectForVe() {
+        List<Long> ids = Collections.singletonList(2L);
+        when(productPersistencePort.findByIds(anyCollection()))
+                .thenReturn(Collections.singletonList(TestUtils.buildProductMock()));
+        assertThrows(ProductNotFoundException.class,()->productService.verifyExistsProductByIds(ids));
+        Mockito.verify(productPersistencePort, times(1)).findByIds(anyCollection());
+    }
 }

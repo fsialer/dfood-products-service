@@ -54,4 +54,10 @@ public class ProductRestAdapter {
         return ResponseEntity.ok(productRestMapper.toProductsResponse(productInputPort.findByIds(ids)));
     }
 
+    @GetMapping("/verify-exists-by-ids")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void verifyExistByIds(@RequestParam List<Long> ids){
+       productInputPort.verifyExistsProductByIds(ids);
+    }
+
 }
