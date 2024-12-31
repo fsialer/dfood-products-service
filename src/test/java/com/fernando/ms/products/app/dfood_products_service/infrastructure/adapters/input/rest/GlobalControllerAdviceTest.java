@@ -4,10 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fernando.ms.products.app.dfood_products_service.application.ports.input.CategoryInputPort;
 import com.fernando.ms.products.app.dfood_products_service.application.ports.input.ProductInputPort;
 import com.fernando.ms.products.app.dfood_products_service.domain.exceptions.CategoryNotFoundException;
+import com.fernando.ms.products.app.dfood_products_service.domain.exceptions.OutputStockRuleException;
 import com.fernando.ms.products.app.dfood_products_service.domain.exceptions.ProductNotFoundException;
+import com.fernando.ms.products.app.dfood_products_service.domain.exceptions.UpdateStockStrategyNotFoundException;
 import com.fernando.ms.products.app.dfood_products_service.infrastructure.adapters.input.rest.mapper.CategoryRestMapper;
 import com.fernando.ms.products.app.dfood_products_service.infrastructure.adapters.input.rest.mapper.ProductRestMapper;
 import com.fernando.ms.products.app.dfood_products_service.infrastructure.adapters.input.rest.models.response.ErrorResponse;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -19,10 +22,9 @@ import static com.fernando.ms.products.app.dfood_products_service.infrastructure
 import static com.fernando.ms.products.app.dfood_products_service.infrastructure.adapters.input.rest.models.enums.ErrorType.SYSTEM;
 import static com.fernando.ms.products.app.dfood_products_service.infrastructure.utils.ErrorCatalog.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = {CategoryRestAdapter.class,ProductRestAdapter.class})
@@ -122,6 +124,46 @@ public class GlobalControllerAdviceTest {
                             ()->assertEquals(FUNCTIONAL,errorResponse.getType()),
                             ()->assertEquals(PRODUCTS_BAD_PARAMETERS.getMessage(),errorResponse.getMessage()),
                             ()->assertNotNull(errorResponse.getDetails()),
+                            ()->assertNotNull(errorResponse.getTimestamp())
+                    );
+                });
+    }
+
+    @Test
+    @DisplayName("Expect OrderStrategyException When Operation Stock Products is Invalid")
+    void Expect_OrderStrategyException_When_OperationStockProductsIsInvalid() throws Exception {
+        when(productInputPort.updateStock(anyLong(),anyInt(),anyString()))
+                .thenThrow(new UpdateStockStrategyNotFoundException("Operation not valid: ANY"));
+        mockMvc.perform(put("/products/{id}/update-stock/{quantity}/operation/{operation}}",1L,11,"ANY")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(result->{
+                    ErrorResponse errorResponse=objectMapper.readValue(
+                            result.getResponse().getContentAsString(), ErrorResponse.class);
+                    assertAll(
+                            ()->assertEquals(OPERATION_UPDATE_STOCK_NOT_FOUND.getCode(),errorResponse.getCode()),
+                            ()->assertEquals(FUNCTIONAL,errorResponse.getType()),
+                            ()->assertEquals(OPERATION_UPDATE_STOCK_NOT_FOUND.getMessage(),errorResponse.getMessage()),
+                            ()->assertNotNull(errorResponse.getTimestamp())
+                    );
+                });
+    }
+
+    @Test
+    @DisplayName("Expect OrderStrategyException When Operation Stock Products is Invalid")
+    void Expect_OutputStockRuleException_When_Product() throws Exception {
+        when(productInputPort.updateStock(anyLong(),anyInt(),anyString()))
+                .thenThrow(new OutputStockRuleException("Current stock is zero"));
+        mockMvc.perform(put("/products/{id}/update-stock/{quantity}/operation/{operation}}",1L,11,"OUTPUT")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(result->{
+                    ErrorResponse errorResponse=objectMapper.readValue(
+                            result.getResponse().getContentAsString(), ErrorResponse.class);
+                    assertAll(
+                            ()->assertEquals(OUTPUT_STOCK_RULE.getCode(),errorResponse.getCode()),
+                            ()->assertEquals(FUNCTIONAL,errorResponse.getType()),
+                            ()->assertEquals(OUTPUT_STOCK_RULE.getMessage(),errorResponse.getMessage()),
                             ()->assertNotNull(errorResponse.getTimestamp())
                     );
                 });

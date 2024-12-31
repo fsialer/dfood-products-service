@@ -8,6 +8,7 @@ import com.fernando.ms.products.app.dfood_products_service.infrastructure.adapte
 import com.fernando.ms.products.app.dfood_products_service.infrastructure.adapters.input.rest.models.response.ProductResponse;
 import com.fernando.ms.products.app.dfood_products_service.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.mockito.ArgumentMatchers.anyList;
@@ -192,6 +193,24 @@ public class ProductRestAdapterTest {
 
         Mockito.verify(productInputPort,times(1)).findByIds(anyCollection());
         Mockito.verify(productRestMapper,times(1)).toProductsResponse(anyList());
+    }
+
+    @Test
+    @DisplayName("When Stock Of Product Is Updated Expect Product Updated")
+    void When_StockOfProductIsUpdated_Expect_ProductUpdated() throws Exception {
+        ProductResponse productResponse=TestUtils.buildProductResponseMock();
+        Product product=TestUtils.buildProductMock();
+        when(productInputPort.updateStock(anyLong(),anyInt(),anyString()))
+                .thenReturn(product);
+        when(productRestMapper.toProductResponse(any(Product.class)))
+                .thenReturn(productResponse);
+
+        mockMvc.perform(put("/products/{id}/update-stock/{quantity}/operation/{operation}",1L,10,"ADD")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L));
+        Mockito.verify(productInputPort,times(1)).updateStock(anyLong(),anyInt(),anyString());
+        Mockito.verify(productRestMapper,times(1)).toProductResponse(any(Product.class));
     }
 
 }

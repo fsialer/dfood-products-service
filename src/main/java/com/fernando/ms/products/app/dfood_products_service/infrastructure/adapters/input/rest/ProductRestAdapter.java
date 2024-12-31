@@ -60,4 +60,10 @@ public class ProductRestAdapter {
        productInputPort.verifyExistsProductByIds(ids);
     }
 
+    @PutMapping("{id}/update-stock/{quantity}/operation/{operation}")
+    public ResponseEntity<ProductResponse> updateStock(@PathVariable Long id, @PathVariable String operation, @PathVariable Integer quantity){
+        ProductResponse productResponse=productRestMapper.toProductResponse(productInputPort.updateStock(id, quantity,operation));
+        return ResponseEntity.ok().body(productResponse);
+    }
+
 }

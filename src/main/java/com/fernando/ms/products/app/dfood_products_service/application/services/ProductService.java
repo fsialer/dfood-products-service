@@ -3,8 +3,10 @@ package com.fernando.ms.products.app.dfood_products_service.application.services
 import com.fernando.ms.products.app.dfood_products_service.application.ports.input.ProductInputPort;
 import com.fernando.ms.products.app.dfood_products_service.application.ports.output.CategoryPersistencePort;
 import com.fernando.ms.products.app.dfood_products_service.application.ports.output.ProductPersistencePort;
+import com.fernando.ms.products.app.dfood_products_service.application.services.strategy.product.IUpdateStockProductStrategy;
 import com.fernando.ms.products.app.dfood_products_service.domain.exceptions.CategoryNotFoundException;
 import com.fernando.ms.products.app.dfood_products_service.domain.exceptions.ProductNotFoundException;
+import com.fernando.ms.products.app.dfood_products_service.domain.exceptions.UpdateStockStrategyNotFoundException;
 import com.fernando.ms.products.app.dfood_products_service.domain.model.Category;
 import com.fernando.ms.products.app.dfood_products_service.domain.model.Product;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,8 @@ public class ProductService implements ProductInputPort {
     private final ProductPersistencePort persistencePort;
 
     private final CategoryPersistencePort categoryPersistencePort;
+
+    private final List<IUpdateStockProductStrategy>  updateStockProductStrategyList;
 
     @Override
     public List<Product> findAll() {
@@ -74,5 +78,16 @@ public class ProductService implements ProductInputPort {
         if(!new HashSet<>(persistencePort.findByIds(ids).stream().map(Product::getId).toList()).containsAll((Collection<?>) ids)) {
             throw new ProductNotFoundException();
         }
+    }
+
+    @Override
+    public Product updateStock(Long id, Integer quantity,String operation) {
+        return persistencePort.findById(id).map(product -> {
+            product.setQuantity(updateStockProductStrategyList.stream().filter(strategy-> strategy.isApplicable(operation))
+                    .findFirst()
+                    .orElseThrow(() -> new UpdateStockStrategyNotFoundException("Operation not valid: " + operation))
+                    .doOperation(product.getQuantity(),quantity));
+            return persistencePort.save(product);
+        }).orElseThrow(ProductNotFoundException::new);
     }
 }
